@@ -1,3 +1,13 @@
+# Smart Car Device Project
+# Matthew Konyndyk, Jasjit Singh, Alex Mendez, Colleen Nhim
+# Portland State University
+# v0.0 created 02/25/2017
+# Last update: v0.2 03/04/2017
+
+# This script connects a Raspberry Pi to a USB ELM327 OBDII device and automatically prints RPM, MPH, Fuel Level, & Intake Air Temperature data to the console.
+
+
+
 import serial
 import time
 import string
@@ -6,111 +16,62 @@ import os
 import re
 
 
-#intialize serial port
-ser = serial.Serial("/dev/ttyUSB0")
-ser.baudrate = 115200
-ser.timeout = 1
-exitflag = False
-time.sleep(1)
-ser.flushInput()
-s = 'ATe0'
-ser.write(s + '\r')
-
-while exitflag != True:
-
-    #prompt user for AT command
-    #s = raw_input('Enter command --> ')
-        # ATZ: initializes device
-        # AT SP 0: sets protocol to search for protocol
-        # E0: Echo Off
-        # E1: Echo On
-        # H0: Headers off
-        # H1: Headers on
-        #
-        # 01 00: PID 00 command - responds with a message
-        # 01 0C: request engine rpm. The response will be 41 0C xx xx. Convert last 4 #s to decimal, divide by 4 to get rpm.
-        # 09 02 5: request VIN. we know that there are 5 lines coming.
-        # 01 01: request how many trouble codes are currently stored
-        # 01 0D: Vehicle speed in km/h
-        # 01 0F: Intake air temperature (formula A-40)
-        # 01 45: Relative throttle position (formula: (100/255)*A
-        # 01 46: Ambient air temperautre
-        # 01 51: Fuel Type
-        # 01 52: Ethanol fuel % (formula: (199/255)*A
-        # 
-    
-    #get rpm
-    if ser.inWaiting()>0: ser.flushInput()
-    #ser.flushInput()
-    s = '010c'
+#initializes serial port connection
+def serial_port_init(serial_address):
+    ser = serial.Serial(serial_address)
+    ser.baudrate = 115200
+    ser.timeout = 1
+    exitflag = False
+    time.sleep(1)
+    ser.flushInput()
+    s = 'ATe0'
     ser.write(s + '\r')
-    time.sleep(1)
-    #convert response
-    raw = ser.read(15)
-    print (raw)
-    msg1 = re.sub(r'\W+','',raw)
-    print (msg1)
-    msg= msg1[4:8]
-    print (msg)
-    rpm = ((256*int(msg[0:2], 16))+int(msg[2:4], 16))/4
-    print 'above rpm'
-    
-    # get mph
-    if ser.inWaiting()>0: ser.flushInput()
-    #ser.flushInput()
-    s1 = '010d'
-    ser.write(s1 + '\r')
-    time.sleep(1)
-    #convert response
-    raw1 = ser.read(15)
-    print(raw1)
-    msg2 = re.sub(r'\W+','',raw1)
-    print(msg2)
-    msg3= msg2[4:8]
-    print(msg3)
-    mph = int(msg3[0:2], 16)
-    print 'above mph'
 
-    # get fuel level 
-    if ser.inWaiting()>0: ser.flushInput()
-    #ser.flushInput()
-    s2 = '012f'
-    ser.write(s2 + '\r')
-    time.sleep(1)
-    #convert response
-    raw1 = ser.read(15)
-    print(raw1)
-    msg2 = re.sub(r'\W+','',raw1)
-    print(msg2)
-    msg3= msg2[4:6]
-    print(msg3)
-    fl1 = (int(msg3[0:2], 16))
-    print(fl1)
-    fl = (.392157)*fl1
-    print'above fuel level'
-    
-    # get intake air temp
-    if ser.inWaiting()>0: ser.flushInput()
-    #ser.flushInput()
-    s3 = '0146'
-    ser.write(s3 + '\r')
-    time.sleep(1)
-    #convert response
-    raw1 = ser.read(15)
-    print(raw1)
-    msg2 = re.sub(r'\W+','',raw1)
-    print(msg2)
-    msg3= msg2[4:6]
-    print(msg3)
-    temp1 = (int(msg3[0:2], 16)-40)
-    temp = (temp1*(1.8)) + 32
 
-    #display message to output window
-    print ("RPM: ",rpm)
-    print ("MPH: ",mph)
-    print ("FL: ", fl)
-    print ("temp: ",temp)
-    
-#close serial    
-ser.close
-print ('Serial is closed')
+# returns an array of raw data
+def get_raw_data():
+    if ser.inWaiting()>0: ser.flushInput()
+    s = '01 0C 0D 2F 46 4' #fetches RPM, MPH, Fuel Level, Intake Air Temperature. We know there are 4 lines coming.
+    ser.write(s + '\r')
+    time.sleep(.25) #gives device time to communicate with CAN bus
+    raw[0] = ser.readline
+    raw[1] = ser.read(1)
+    raw[2] = ser.read(1)
+    raw[3] = ser.read(1)
+    return(raw)
+
+
+# converts an array of raw data to an array of decoded data
+def decode_raw_data(raw_data):
+    rpm = re.sub(r'\W+','',raw_data) #searches for a word following a hyphen?
+        rpm = rpm[4:8]
+        rpm = ((256*int(msg[0:2], 16))+int(msg[2:4], 16))/4
+    mph = re.sub(r'\W+','',raw_data)
+        mph = mph[4:8]
+        mph = int(msg3[0:2], 16)
+    fuel_level = re.sub(r'\W+','',raw1)
+        fuel_level = fuel_level[4:6]
+        fuel_level = (int(msg3[0:2], 16))
+        fuel_level = (.392157)*fuel_level
+    intake_air_temp = re.sub(r'\W+','',raw1)
+        intake_air_temp = intake_air_temp[4:6]
+        intake_air_temp = (int(msg3[0:2], 16)-40)
+        intake_air_temp = (temp1*(1.8)) + 32
+    return [rpm, mph, fuel_level, intake_air_temp]
+
+
+# displays values in the console.
+def print_values_to_console(data_array):
+    print ("RPM: ",data_array[1])
+    print ("MPH: ",data_array[2])
+    print ("Fuel Level: ", data_array[3])
+    print ("Intake Air Temperature: ",data_array[4])
+
+
+
+# Main body
+serial_port_init("/dev/ttyUSB0") # sets up connection with the serial port
+raw_data = get_raw_data() # fetches a list of raw data
+decoded_data = decode_raw_data(raw_data) #converts raw data to integer values
+print_values_to_console(decoded_data) # displays the CAN data in the console
+ser.close #close serial
