@@ -2,9 +2,10 @@
 # Matthew Konyndyk, Jasjit Singh, Alex Mendez, Colleen Nhim
 # Portland State University
 # v0.0 created 02/25/2017
-# Last update: v0.2 03/04/2017
+# Last update: v0.3 03/06/2017
 
-# This script connects a Raspberry Pi to a USB ELM327 OBDII device and automatically prints RPM, MPH, Fuel Level, & Intake Air Temperature data to the console.
+# This script connects a Raspberry Pi to a USB ELM327 OBDII device and automatic                                import time
+
 
 
 
@@ -15,63 +16,72 @@ import io
 import os
 import re
 
-
-#initializes serial port connection
-def serial_port_init(serial_address):
+                                                       
+# returns a string of raw data
+def get_raw_data(serial_address):
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200
     ser.timeout = 1
-    exitflag = False
-    time.sleep(1)
     ser.flushInput()
-    s = 'ATe0'
+    s = '01 0C 0D 2F'
+    #0D 2F 46 #fetches RPM, MPH, Fuel Level, Intake Air Temperature. 
     ser.write(s + '\r')
-
-
-# returns an array of raw data
-def get_raw_data():
-    if ser.inWaiting()>0: ser.flushInput()
-    s = '01 0C 0D 2F 46 4' #fetches RPM, MPH, Fuel Level, Intake Air Temperature. We know there are 4 lines coming.
-    ser.write(s + '\r')
-    time.sleep(.25) #gives device time to communicate with CAN bus
-    raw[0] = ser.readline
-    raw[1] = ser.read(1)
-    raw[2] = ser.read(1)
-    raw[3] = ser.read(1)
+    time.sleep(1) #gives device time to communicate with CAN bus
+    raw = ser.read(1024)
     return(raw)
+
+#def separate_data(raw_data):
+#rpm: 41 0C 0A 24 
+
+#rpm, mph: 41 0C 0A F0 0D 00 
+
+# mph, rpm: 41 0D 00 0C 0B 14 
+
+# rpm, mph, fl: 008 0: 41 0C 0A BC 0D 00 1: 2F 78 00 00 00 00 00 
+
+#all 4: 00A 0: 41 0C 0A C0 0D 00 1: 2F 78 46 50 00 00 00
 
 
 # converts an array of raw data to an array of decoded data
 def decode_raw_data(raw_data):
-    rpm = re.sub(r'\W+','',raw_data) #searches for a word following a hyphen?
-        rpm = rpm[4:8]
-        rpm = ((256*int(msg[0:2], 16))+int(msg[2:4], 16))/4
-    mph = re.sub(r'\W+','',raw_data)
-        mph = mph[4:8]
-        mph = int(msg3[0:2], 16)
-    fuel_level = re.sub(r'\W+','',raw1)
-        fuel_level = fuel_level[4:6]
-        fuel_level = (int(msg3[0:2], 16))
-        fuel_level = (.392157)*fuel_level
-    intake_air_temp = re.sub(r'\W+','',raw1)
-        intake_air_temp = intake_air_temp[4:6]
-        intake_air_temp = (int(msg3[0:2], 16)-40)
-        intake_air_temp = (temp1*(1.8)) + 32
-    return [rpm, mph, fuel_level, intake_air_temp]
+    raw = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
+    print(raw)
+    rpm = raw[8:12]
+    rpm = ((256*int(rpm[0:2], 16))+int(rpm[2:4], 16))/4
+    mph = int(raw[14:16], 16)
+    fuel_level = raw[19:21]
+    fuel_level = (int(fuel_level[0:2], 16))
+    fuel_level = (.392157)*fuel_level
+    #intake_air_temp = intake_air_temp[4:6]
+    #intake_air_temp = (int(msg3[0:2], 16)-40)
+    #intake_air_temp = (temp1*(1.8)) + 32
+    return rpm, mph, fuel_level
+    #0080410C 0EA9 0D 00 12F 7C 0000000000
 
 
 # displays values in the console.
-def print_values_to_console(data_array):
-    print ("RPM: ",data_array[1])
-    print ("MPH: ",data_array[2])
-    print ("Fuel Level: ", data_array[3])
-    print ("Intake Air Temperature: ",data_array[4])
+def print_values_to_console(rpm,mph,fl):
+    print ("RPM: ",rpm)
+    print ("MPH: ",mph)
+    print ("Fuel Level: ", fl)
+    #print ("Intake Air Temperature: ",data[3])
 
 
 
 # Main body
-serial_port_init("/dev/ttyUSB0") # sets up connection with the serial port
-raw_data = get_raw_data() # fetches a list of raw data
-decoded_data = decode_raw_data(raw_data) #converts raw data to integer values
-print_values_to_console(decoded_data) # displays the CAN data in the console
+serial_address = "/dev/ttyUSB0"
+ser = serial.Serial(serial_address)
+ser.baudrate = 115200
+ser.timeout = 1
+s = 'ATe0'
+ser.write(s + '\r') 
+time.sleep(1)
+ser = serial.Serial(serial_address)
+flag = 0
+
+while flag == 0:
+    raw_data = get_raw_data(serial_address) # fetches a list of raw data
+    rpm, mph, fl = decode_raw_data(raw_data) #converts raw data to integer values
+    print_values_to_console(rpm,mph,fl) # displays the CAN data in the console
+
 ser.close #close serial
