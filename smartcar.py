@@ -16,6 +16,24 @@ import io
 import os
 import re
 
+#GPS Module
+class serial_device:
+    def __init__(self, serialport, speed):
+        self.device = serial.Serial(port=serialport, baudrate=speed, timeout=1)
+
+gps=serial_device('com3',9600)
+count =0
+while (count<2):
+    #print gps.device
+    gps.device.flushInput()
+    time.sleep(1)
+    text = gps.device.read(250)
+    text1 = text[text.find('$GPRMC,')+20:text.find(',0.',text.find('$GPRMC,')+3)]
+    print text1
+    print 'new'
+    count = count+1
+print "bye"
+
                                                        
 # returns a string of raw data
 def get_raw_data(serial_address):
