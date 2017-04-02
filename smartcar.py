@@ -28,7 +28,8 @@ def obd_data(serial_address):
     ser.write(s + '\r')
     time.sleep(.4) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
-    print("raw data: ", raw_data)
+    print("raw data: ")
+    print(raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
     return hex_data
