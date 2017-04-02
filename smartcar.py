@@ -27,10 +27,10 @@ def obd_data_1(serial_address):
     s = '01 0C 0D 2F 05 50'
     ser.write(s + '\r')
     time.sleep(1) #gives device time to communicate with CAN bus
-    raw = ser.read(1024)
+    raw_data = ser.read(1024)
     #interpret data
-    raw = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    return raw
+    hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
+    return hex_data
 
 
 #fetches Relative Throttle Position, Engine Load, Percent Torque, Engine Fuel Rate, Run Time since Engine Start, Ambient Air Temp,
@@ -43,13 +43,13 @@ def obd_data_2(serial_address):
     s = '01 45 04 61 5E 1F 46'
     ser.write(s + '\r')
     time.sleep(1) #gives device time to communicate with CAN bus
-    raw = ser.read(1024)
+    raw_data = ser.read(1024)
     #interpret data
-    raw = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    return raw
+    hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
+    return hex_data
 
 
-def interpret_data(raw)
+def interpret_data(raw):
     rpm = raw[8:12]
     rpm = ((256*int(rpm[0:2], 16))+int(rpm[2:4], 16))/4
     mph = int(raw[14:16], 16)
@@ -73,12 +73,14 @@ time.sleep(1)
 ser = serial.Serial(serial_address)
 flag = 0
 
-while flag == 0:
-    raw1 = obd_data_1(serial_address)
-    raw2 = obd_data_2(serial_address)
-    print("raw1")
-    print(raw1)
-    print("raw2")
-    print(raw2)
+while flag < 50:
+    hex1 = obd_data_1(serial_address)
+    hex2 = obd_data_2(serial_address)
+    print("hex1")
+    print(hex1)
+    print("hex2")
+    print(hex2)
+    flag+=1
+    
 
 ser.close #close serial
