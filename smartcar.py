@@ -18,7 +18,7 @@ import re
 
                                                        
 #fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
-def obd_data_1(serial_address):
+def obd_data(serial_address):
     #fetch data
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200
@@ -28,6 +28,7 @@ def obd_data_1(serial_address):
     ser.write(s + '\r')
     time.sleep(.4) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
+    print("raw data: ", raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
     return hex_data
@@ -40,18 +41,18 @@ def interpret_data(raw):
     
     mph = int(raw[14:16], 16)
     
-    fuel_level = raw[19:20]
-    fuel_level = (int(fuel_level[0:1], 16))
+    fuel_level = raw[19:21]
+    fuel_level = (int(fuel_level[0:2], 16))
     fuel_level = (.392157)*fuel_level
     
     engine_coolant_temp = raw[23:24]
-    engine_coolant_temp = = ((int(engine_coolant_temp[0:2], 16))-40)*9/5+32
+    engine_coolant_temp = ((int(engine_coolant_temp[0:2], 16))-40)*9/5+32
     
     engine_load = raw[27:28]
     engine_load = (int(engine_load[0:1], 16))/2.55
     
     run_time = raw[32:35]
-    run_time = 256*(int(fuel_level[0:1], 16)) + (int(fuel_level[0:1], 16))
+    run_time = 256*(int(run_time[0:1], 16)) + (int(run_time[2:3], 16))
     
     return rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time
 
@@ -73,18 +74,18 @@ ser = serial.Serial(serial_address)
 flag = 0
 
 while flag < 100:
-    hex = obd_data_1(serial_address)
+    hex = obd_data(serial_address)
     print("hex")
     print(hex)
     
     rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = interpret_data(hex)
     print("data")
     print("rpm: ", rpm)
-    print("mph: ", rpm)
-    print("fuel level: ", rpm)
-    print("engine coolant temp: ", rpm)
-    print("engine load: ", rpm)
-    print("run time: ", rpm)
+    print("mph: ", mph)
+    print("fuel level: ", fuel_level)
+    print("engine coolant temp: ", engine_coolant_temp)
+    print("engine load: ", engine_load)
+    print("run time: ", run_time)
     
     
     flag+=1
