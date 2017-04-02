@@ -17,32 +17,16 @@ import os
 import re
 
                                                        
-#fetches RPM, MPH, Fuel Level, Engine Coolant Temp, MAF, ???
+#fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
 def obd_data_1(serial_address):
     #fetch data
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200
     ser.timeout = 1
     ser.flushInput()
-    s = '01 0C 0D 2F 05 50'
+    s = '01 0C 0D 2F 05 04 1F'
     ser.write(s + '\r')
-    time.sleep(1) #gives device time to communicate with CAN bus
-    raw_data = ser.read(1024)
-    #interpret data
-    hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    return hex_data
-
-
-#fetches Relative Throttle Position, Engine Load, Percent Torque, Engine Fuel Rate, Run Time since Engine Start, Ambient Air Temp,
-def obd_data_2(serial_address):
-    #fetch data
-    ser = serial.Serial(serial_address)
-    ser.baudrate = 115200
-    ser.timeout = 1
-    ser.flushInput()
-    s = '01 45 04 61 5E 1F 46'
-    ser.write(s + '\r')
-    time.sleep(1) #gives device time to communicate with CAN bus
+    time.sleep(.4) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
@@ -56,10 +40,10 @@ def interpret_data(raw):
     fuel_level = raw[19:21]
     fuel_level = (int(fuel_level[0:2], 16))
     fuel_level = (.392157)*fuel_level
-    #intake_air_temp = intake_air_temp[4:6]
-    #intake_air_temp = (int(msg3[0:2], 16)-40)
-    #intake_air_temp = (temp1*(1.8)) + 32
-    return param1, value1, param2, value2, param3, value3, param4, value4, param5, value5, param6, value6
+    engine_coolant_temp = 0
+    engine_load = 0
+    run_time = 0
+    return rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time
 
 
 # Main body
@@ -69,17 +53,14 @@ ser.baudrate = 115200
 ser.timeout = 1
 s = 'ATe0'
 ser.write(s + '\r') 
-time.sleep(1)
+time.sleep(.4)
 ser = serial.Serial(serial_address)
 flag = 0
 
-while flag < 50:
-    hex1 = obd_data_1(serial_address)
-    hex2 = obd_data_2(serial_address)
-    print("hex1")
-    print(hex1)
-    print("hex2")
-    print(hex2)
+while flag < 100:
+    hex = obd_data_1(serial_address)
+    print("hex")
+    print(hex)
     flag+=1
     
 
