@@ -37,7 +37,7 @@ def obd_data(serial_address):
 
 def interpret_data(raw):
     
-    rpm = raw[8:12]
+    rpm = raw[8:12] #data is from 08 to 11, in python syntax that 8 to 12
     rpm = ((256*int(rpm[0:2], 16))+int(rpm[2:4], 16))/4
     
     mph = int(raw[14:16], 16)
@@ -46,21 +46,30 @@ def interpret_data(raw):
     fuel_level = (int(fuel_level[0:2], 16))
     fuel_level = (.392157)*fuel_level
     
-    engine_coolant_temp = raw[23:24]
+    engine_coolant_temp = raw[23:25]
     engine_coolant_temp = ((int(engine_coolant_temp[0:2], 16))-40)*9/5+32
     
-    engine_load = raw[27:28]
-    engine_load = (int(engine_load[0:1], 16))/2.55
+    engine_load = raw[27:29]
+    engine_load = (int(engine_load[0:2], 16))/2.55
     
-    run_time = raw[32:35]
-    run_time = 256*(int(run_time[0:1], 16)) + (int(run_time[2:3], 16))
+    run_time = raw[32:36]
+    run_time = ((256*int(run_time[0:2], 16))+int(run_time[2:4], 16))
     
     return rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time
 
 
-#00F041   0C 0E8D   0D 001   2F E4   05 5C   04 45   1F2 00F9  0000000000
-#012345   67 8901   23 456   78 90   12 34   56 78   901 2345  789012345
-#000000   00 0011   11 111   11 12   22 22   22 22   233 3333  3333444444
+
+#01 0C 0D 2F 05 04 1F
+# raw data:
+# 00F
+# 0: 41 0C 0F BA 0D 00
+# 1: 2F E4 05 50 04 40 1F
+# 2: 00 D9 00 00 00 00 00
+
+# hex
+# 00F041   0C 0FBA   0D 00   1   2F E4   05 50   04 40   1F 2   00D9   0000000000
+# 000000   00 0011   11 11   1   11 12   22 22   22 22   23 3   3333   3333444444
+# 012345   67 8901   23 45   6   78 90   12 34   56 78   90 1   2345   67890
 
 
 # Main body
@@ -86,8 +95,9 @@ while flag < 100:
     print("fuel level: ", fuel_level)
     print("engine coolant temp: ", engine_coolant_temp)
     print("engine load: ", engine_load)
-    print("run time: ", run_time)
-    
+    m, s = divmod(run_time, 60)
+    h, m = divmod(m, 60)
+    print "%d:%02d:%02d" % (h, m, s)
     
     flag+=1
     
