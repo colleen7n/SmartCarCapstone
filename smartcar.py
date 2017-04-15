@@ -16,6 +16,7 @@ import io
 import os
 import re
 
+
                                                        
 #fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
 def obd_data(serial_address):
@@ -59,6 +60,74 @@ def interpret_data(raw):
 
 
 
+#-----------------------------------------------------------------------------------------
+
+#finds how many error codes are stored
+def error_codes(serial_address):
+    #fetch data
+    ser = serial.Serial(serial_address)
+    ser.baudrate = 115200
+    ser.timeout = 1
+    ser.flushInput()
+    s = '03'
+    ser.write(s + '\r')
+    time.sleep(.4) #gives device time to communicate with CAN bus
+    raw_data = ser.read(1024)
+    print("raw data: ")
+    print(raw_data)
+    #interpret data
+    hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
+    return hex_data
+
+
+
+def separate_codes(raw)
+    error_code_1 = raw[2:6]
+    error_code_2 = raw[6:10]   # need to fix this because there are going to be extra
+    error_code_3 = raw[10:14]  # characters if multiple frames are sent
+    error_code_4 = raw[14:18]
+    error_code_5 = raw[20:22]
+    return error_code_1, error_code_2, error_code_3, error_code_4, error_code_5
+
+
+
+def interpret_error_code(error_code):
+    if error_code[0] == "0":
+        error_code = "P0" + raw[1:4]
+    elif error_code[0] == "1":
+        error_code = "P1" + raw[1:4]
+    elif error_code[0] == "2":
+        error_code = "P2" + raw[1:4]
+    elif error_code[0] == "3":
+        error_code = "P3" + raw[1:4]
+    elif error_code[0] == "4":
+        error_code = "C0" + raw[1:4]
+    elif error_code[0] == "5":
+        error_code = "C1" + raw[1:4]
+    elif error_code[0] == "6":
+        error_code = "C2" + raw[1:4]
+    elif error_code[0] == "7":
+        error_code = "C3" + raw[1:4]
+    elif error_code[0] == "8":
+        error_code = "B0" + raw[1:4]
+    elif error_code[0] == "9":
+        error_code = "B1" + raw[1:4]
+    elif error_code[0] == "A":
+        error_code = "B2" + raw[1:4]
+    elif error_code[0] == "B":
+        error_code = "B3" + raw[1:4]
+    elif error_code[0] == "C":
+        error_code = "U0" + raw[1:4]
+    elif error_code[0] == "D":
+        error_code = "U1" + raw[1:4]
+    elif error_code[0] == "E":
+        error_code = "U2" + raw[1:4]
+    elif error_code[0] == "F":
+        error_code = "U3" + raw[1:4]
+    return error_code
+
+
+
 #01 0C 0D 2F 05 04 1F
 # raw data:
 # 00F
@@ -72,6 +141,8 @@ def interpret_data(raw):
 # 012345   67 8901   23 45   6   78 90   12 34   56 78   90 1   2345   67890
 
 
+
+
 # Main body
 serial_address = "/dev/ttyUSB0"
 ser = serial.Serial(serial_address)
@@ -83,11 +154,23 @@ time.sleep(.4)
 ser = serial.Serial(serial_address)
 flag = 0
 
+
+#example of fetching error codes
+raw_error_codes = error_codes(serial_address)
+error_code_1, error_code_2, error_code_3, error_code_4, error_code_5 = error_codes(raw_error_codes)
+error_code_1 = interpret_error_code(error_code_1)
+error_code_2 = interpret_error_code(error_code_2)
+error_code_3 = interpret_error_code(error_code_3)
+error_code_4 = interpret_error_code(error_code_4)
+error_code_5 = interpret_error_code(error_code_5)
+print(error_code_1, error_code_2, error_code_3, error_code_4, error_code_5)
+
+
+#example of fetching data
 while flag < 100:
     hex = obd_data(serial_address)
     print("hex")
     print(hex)
-    
     rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = interpret_data(hex)
     print("data")
     print("rpm: ", rpm)
@@ -98,8 +181,8 @@ while flag < 100:
     m, s = divmod(run_time, 60)
     h, m = divmod(m, 60)
     print "%d:%02d:%02d" % (h, m, s)
-    
     flag+=1
+
     
 
 ser.close #close serial
