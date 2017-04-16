@@ -2,7 +2,7 @@
 # Matthew Konyndyk, Jasjit Singh, Alex Mendez, Colleen Nhim
 # Portland State University
 # v0.0 created 02/25/2017
-# Last update: v0.4 04/01/2017
+# Last update: v0.5 04/15/2017
 
 # This script is used to interface a USB ELM327 OBDII with the Raspberry Pi
 
@@ -77,11 +77,12 @@ def error_codes(serial_address):
     print(raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
+    hex_data = hex_data + "000000000000000000000000000000" #0's buffer for lexing
     return hex_data
 
 
 
-def separate_codes(raw)
+def separate_codes(raw):
     error_code_1 = raw[2:6]
     error_code_2 = raw[6:10]   # need to fix this because there are going to be extra
     error_code_3 = raw[10:14]  # characters if multiple frames are sent
