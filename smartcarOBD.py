@@ -52,12 +52,14 @@ def get_obd_data(serial_address):
     fuel_level = raw[19:21]
     fuel_level = (int(fuel_level[0:2], 16))
     fuel_level = (.392157)*fuel_level
+    fuel_level = "%.2f" % fuel_level
     
     engine_coolant_temp = raw[23:25]
     engine_coolant_temp = ((int(engine_coolant_temp[0:2], 16))-40)*9/5+32
     
     engine_load = raw[27:29]
     engine_load = (int(engine_load[0:2], 16))/2.55
+    engine_load = "%.2f" % engine_load
     
     run_time = raw[32:36]
     run_time = ((256*int(run_time[0:2], 16))+int(run_time[2:4], 16))
@@ -68,7 +70,7 @@ def get_obd_data(serial_address):
 
 #-----------------------------------------------------------------------------------------
 
-#finds how many error codes are stored
+#display error codes
 def error_codes(serial_address):
     #fetch data
     ser = serial.Serial(serial_address)
@@ -83,14 +85,12 @@ def error_codes(serial_address):
     print(raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    raw = hex_data + "000000000000000000000000000000" #0's buffer for lexing
+    raw = hex_data + "0000000000000000000000" #0's buffer for lexing
 
     error_code_1 = raw[2:6]
-    error_code_2 = raw[6:10]   # need to fix this because there are going to be extra
-    error_code_3 = raw[10:14]  # characters if multiple frames are sent
-    error_code_4 = raw[14:18]
-    error_code_5 = raw[20:22]
-    return error_code_1, error_code_2, error_code_3, error_code_4, error_code_5
+    error_code_2 = raw[6:10]   
+    error_code_3 = raw[10:14]  
+    return error_code_1, error_code_2, error_code_3#, error_code_4, error_code_5
 
 
 
@@ -129,23 +129,20 @@ def interpret_error_code(error_code):
         error_code = "U3" + raw[1:4]
     return error_code
 
+#MAIN 
 
-#MAIN BODY
+#initialize
+serial_address = initialize_OBD()
 
-
-#example of fetching error codes
-raw_error_codes = error_codes(serial_address)
-error_code_1, error_code_2, error_code_3, error_code_4, error_code_5 = error_codes(raw_error_codes)
+#error codes
+error_code_1, error_code_2, error_code_3 = error_codes()
 error_code_1 = interpret_error_code(error_code_1)
 error_code_2 = interpret_error_code(error_code_2)
 error_code_3 = interpret_error_code(error_code_3)
-error_code_4 = interpret_error_code(error_code_4)
-error_code_5 = interpret_error_code(error_code_5)
-print(error_code_1, error_code_2, error_code_3, error_code_4, error_code_5)
+print("error messages")
+print(error_code_1, error_code_2, error_code_3)
 
-
-#example of fetching data
-serial_address = initialize_OBD()
+#OBD info
 while flag < 100:
     rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data(serial_address)
     print("data")
