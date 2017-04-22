@@ -2,7 +2,7 @@
 # Matthew Konyndyk, Jasjit Singh, Alex Mendez, Colleen Nhim
 # Portland State University
 # v0.0 created 02/25/2017
-# Last update: v0.5 04/15/2017
+# Last update: v0.6 04/24/2017
 
 # This script is used to interface a USB ELM327 OBDII with the Raspberry Pi
 
@@ -16,10 +16,20 @@ import io
 import os
 import re
 
+def initialize_OBD(): #initializes the OBD connection and returns the serial address
+    serial_address = "/dev/ttyUSB0"
+    ser = serial.Serial(serial_address)
+    ser.baudrate = 115200
+    ser.timeout = 1
+    s = 'ATe0'
+    ser.write(s + '\r') 
+    time.sleep(.4)
+    ser = serial.Serial(serial_address)
+    return serial_address
 
                                                        
 #fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
-def obd_data(serial_address):
+def get_obd_data(serial_address):
     #fetch data
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200
@@ -32,11 +42,7 @@ def obd_data(serial_address):
     print("raw data: ")
     print(raw_data)
     #interpret data
-    hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    return hex_data
-
-
-def interpret_data(raw):
+    raw = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
     
     rpm = raw[8:12] #data is from 08 to 11, in python syntax that 8 to 12
     rpm = ((256*int(rpm[0:2], 16))+int(rpm[2:4], 16))/4
@@ -77,12 +83,8 @@ def error_codes(serial_address):
     print(raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
-    hex_data = hex_data + "000000000000000000000000000000" #0's buffer for lexing
-    return hex_data
+    raw = hex_data + "000000000000000000000000000000" #0's buffer for lexing
 
-
-
-def separate_codes(raw):
     error_code_1 = raw[2:6]
     error_code_2 = raw[6:10]   # need to fix this because there are going to be extra
     error_code_3 = raw[10:14]  # characters if multiple frames are sent
@@ -128,32 +130,7 @@ def interpret_error_code(error_code):
     return error_code
 
 
-
-#01 0C 0D 2F 05 04 1F
-# raw data:
-# 00F
-# 0: 41 0C 0F BA 0D 00
-# 1: 2F E4 05 50 04 40 1F
-# 2: 00 D9 00 00 00 00 00
-
-# hex
-# 00F041   0C 0FBA   0D 00   1   2F E4   05 50   04 40   1F 2   00D9   0000000000
-# 000000   00 0011   11 11   1   11 12   22 22   22 22   23 3   3333   3333444444
-# 012345   67 8901   23 45   6   78 90   12 34   56 78   90 1   2345   67890
-
-
-
-
-# Main body
-serial_address = "/dev/ttyUSB0"
-ser = serial.Serial(serial_address)
-ser.baudrate = 115200
-ser.timeout = 1
-s = 'ATe0'
-ser.write(s + '\r') 
-time.sleep(.4)
-ser = serial.Serial(serial_address)
-flag = 0
+#MAIN BODY
 
 
 #example of fetching error codes
@@ -168,11 +145,9 @@ print(error_code_1, error_code_2, error_code_3, error_code_4, error_code_5)
 
 
 #example of fetching data
+serial_address = initialize_OBD()
 while flag < 100:
-    hex = obd_data(serial_address)
-    print("hex")
-    print(hex)
-    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = interpret_data(hex)
+    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data(serial_address)
     print("data")
     print("rpm: ", rpm)
     print("mph: ", mph)
@@ -184,6 +159,4 @@ while flag < 100:
     print "%d:%02d:%02d" % (h, m, s)
     flag+=1
 
-    
-
-ser.close #close serial
+    ser.close #close serial
