@@ -81,12 +81,18 @@ def images_get(locationList, StorageSet):
     :param StorageSet:
     :return:
     '''
+    d = {}
     for i in locationList:
         imageLocation = db.child("imag").child(i).get().val()
+        d[i] = imageLocation
         imageName = imageLocation[4:]
         StorageSet.child(imageLocation).download(imageName)
+    return d
 
 
+start_time = time.process_time()
+st = time.time()
+print("getting database information now...")
 config = {
         "apiKey": "AIzaSyBPakJA1_9GCjfgpws8AMSGD2E1pWRTfi8",
         "authDomain": "adsonrpiusinggps.firebaseapp.com",
@@ -115,8 +121,8 @@ offlineBusinesses = dict_get(dbBusinesses, 3, 2)
 
 # give us the locations that are actually near us
 validLocations = locations_get(dbLatitudes, dbLongitudes, gpsLatitude, gpsLongitude)
-images_get(validLocations, storage)
-
+offlineImages = images_get(validLocations, storage)
+print("smart car device ready for offline use")
 # time to find the closest location
 champion = "none"
 champDistance = 1.000  # distance from user to closest location, in latitude/longitude degrees
@@ -136,10 +142,12 @@ for i in validLocations:
 
 # time to calculate distance between both points in miles
 currentDistance = distance_calc(gpsLatitude, gpsLongitude, champLatitude, champLongitude)
+end_time = time.process_time()
+et = time.time()
+print(end_time - start_time)
+print(et-st)
 
-'''
-champImage = db.child("imag").child(champion).get().val()
+champImage = offlineImages[champion]
 champImageName = champImage[4:]
 storage.child(champImage).download(champImageName)
 Image.open(champImageName).show()  # display an image that was downloaded onto the pc
-'''
