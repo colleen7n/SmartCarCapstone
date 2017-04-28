@@ -41,7 +41,7 @@ def distance_calc(latitude1, longitude1, latitude2, longitude2):
 def locations_get(latiSet, longiSet, latitude, longitude):
     '''
 
-    :param latiSet:
+    :param latiSet: The
     :param longiSet:
     :param latitude:
     :param longitude:
