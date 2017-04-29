@@ -141,7 +141,7 @@ longitudeRange = 119 / 69 - abs(cos(radians(gpsLatitude)))
 # get a dictionary filled with longitudes, latitudes, and business types
 offlineLatitudes = dict_get(dbLatitudes, gpsLatitude, latitudeRange)
 offlineLongitudes = dict_get(dbLongitudes, gpsLongitude, longitudeRange)
-offlineBusinesses = dict_get(dbBusinesses, 3, 2)
+offlineBusinesses = dict_get(dbBusinesses, 4, 3)
 
 # give us the locations that are actually near us
 validLocations = locations_get(dbLatitudes, dbLongitudes, gpsLatitude, gpsLongitude)
