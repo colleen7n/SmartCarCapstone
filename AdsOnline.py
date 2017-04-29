@@ -8,6 +8,11 @@ requires Python 3.4 or later due to pyrebase library
 Pyrebase library found at https://github.com/thisbejim/Pyrebase
 requires Pillow library for image displaying
 Pillow library found at https://python-pillow.org/
+LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
+LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
+LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
+LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
+LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
 '''
 
 import pyrebase
@@ -141,7 +146,7 @@ longitudeRange = 119 / 69 - abs(cos(radians(gpsLatitude)))
 # get a dictionary filled with longitudes, latitudes, and business types
 offlineLatitudes = dict_get(dbLatitudes, gpsLatitude, latitudeRange)
 offlineLongitudes = dict_get(dbLongitudes, gpsLongitude, longitudeRange)
-offlineBusinesses = dict_get(dbBusinesses, 4, 3)
+offlineBusinesses = dict_get(dbBusinesses, 5, 4)
 
 # give us the locations that are actually near us
 validLocations = locations_get(dbLatitudes, dbLongitudes, gpsLatitude, gpsLongitude)
