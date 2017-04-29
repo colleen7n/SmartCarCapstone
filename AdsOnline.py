@@ -90,6 +90,30 @@ def images_get(locationList, StorageSet):
     return d
 
 
+def champ_get(locationList, LatiDict, LongiDict, gpsLati, gpsLong):
+    '''
+
+    :param locationList:
+    :param LongiDict:
+    :param LatiDict:
+    :return:
+    '''
+    champ = "none"
+    champDistance = 1.000  # distance from user to closest location, in latitude/longitude degrees
+    champLatitude = 0.000
+    champLongitude = 0.000
+
+    for i in locationList:
+        contenderLatitude = LatiDict[i]
+        contenderLongitude = LongiDict[i]
+        contenderDistance = sqrt((contenderLatitude - gpsLati) ** 2 + (contenderLongitude - gpsLong) ** 2)
+        if contenderDistance < champDistance:
+            champ = i
+            champDistance = contenderDistance
+            champLongitude = contenderLongitude
+            champLatitude = contenderLatitude
+    return champ, champDistance, champLatitude, champLongitude
+
 start_time = time.process_time()
 st = time.time()
 print("getting database information now...")
@@ -124,24 +148,11 @@ validLocations = locations_get(dbLatitudes, dbLongitudes, gpsLatitude, gpsLongit
 offlineImages = images_get(validLocations, storage)
 print("smart car device ready for offline use")
 # time to find the closest location
-champion = "none"
-champDistance = 1.000  # distance from user to closest location, in latitude/longitude degrees
-champLatitude = 0.000
-champLongitude = 0.000
-
-for i in validLocations:
-    contenderLatitude = offlineLatitudes[i]
-    contenderLongitude = offlineLongitudes[i]
-    contenderDistance = sqrt((contenderLatitude-gpsLatitude)**2 + (contenderLongitude-gpsLongitude)**2)
-    if contenderDistance < champDistance:
-        champion = i
-        champDistance = contenderDistance
-        champLongitude = contenderLongitude
-        champLatitude = contenderLatitude
-# print(champion, champDistance, champLatitude, champLongitude)
+champion, champDist, champLati, champLong = champ_get(validLocations, offlineLatitudes, offlineLongitudes, gpsLatitude, gpsLongitude)
+print(champion, champDist, champLong, champLati)
 
 # time to calculate distance between both points in miles
-currentDistance = distance_calc(gpsLatitude, gpsLongitude, champLatitude, champLongitude)
+currentDistance = distance_calc(gpsLatitude, gpsLongitude, champLati, champLong)
 end_time = time.process_time()
 et = time.time()
 print(end_time - start_time)
