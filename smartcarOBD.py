@@ -2,7 +2,7 @@
 # Matthew Konyndyk, Jasjit Singh, Alex Mendez, Colleen Nhim
 # Portland State University
 # v0.0 created 02/25/2017
-# Last update: v0.6 04/24/2017
+# Last update: v0.7 05/06/2017
 
 # This script is used to interface a USB ELM327 OBDII with the Raspberry Pi
 
@@ -16,24 +16,17 @@ import io
 import os
 import re
 
-def initialize_OBD(): #initializes the OBD connection and returns the serial address
-    serial_address = "/dev/ttyUSB0"
-    ser = serial.Serial(serial_address)
-    ser.baudrate = 115200
-    ser.timeout = 1
-    s = 'ATe0'
-    ser.write(s + '\r') 
-    time.sleep(.4)
-    ser = serial.Serial(serial_address)
-    return serial_address
-
                                                        
 #fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
-def get_obd_data(serial_address):
-    #fetch data
+def get_obd_data():
+    serial_address = "/dev/ttyUSB0"
     ser = serial.Serial(serial_address)
-    ser.baudrate = 115200
+    ser.baudrate = 115200 #ELM327 Baud rate
     ser.timeout = 1
+    s = 'ATe0' #init OBD
+    ser.write(s + '\r')
+    time.sleep(.4)
+    #fetch data
     ser.flushInput()
     s = '01 0C 0D 2F 05 04 1F'
     ser.write(s + '\r')
@@ -129,10 +122,7 @@ def interpret_error_code(error_code):
         error_code = "U3" + raw[1:4]
     return error_code
 
-#MAIN 
-
-#initialize
-serial_address = initialize_OBD()
+#MAIN
 
 #error codes
 error_code_1, error_code_2, error_code_3 = error_codes()
@@ -144,7 +134,7 @@ print(error_code_1, error_code_2, error_code_3)
 
 #OBD info
 while flag < 100:
-    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data(serial_address)
+    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data(0)
     print("data")
     print("rpm: ", rpm)
     print("mph: ", mph)
@@ -155,5 +145,4 @@ while flag < 100:
     h, m = divmod(m, 60)
     print "%d:%02d:%02d" % (h, m, s)
     flag+=1
-
     ser.close #close serial
