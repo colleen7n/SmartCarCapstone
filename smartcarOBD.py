@@ -23,12 +23,15 @@ def get_obd_data():
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200 #ELM327 Baud rate
     ser.timeout = 1
+    
+    #we need to test if it works without the next 3 lines of code
     s = 'ATe0' #init OBD
     ser.write(s + '\r')
     time.sleep(.4)
+    
     #fetch data
     ser.flushInput()
-    s = '01 0C 0D 2F 05 04 1F'
+    s = '01 0C 0D 2F 05 04 1F' #requests data
     ser.write(s + '\r')
     time.sleep(.4) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
