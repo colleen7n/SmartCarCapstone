@@ -18,16 +18,16 @@ import re
 
                                                        
 #fetches RPM, MPH, Fuel Level, Engine Coolant Temp, Engine Load, Run Time since Engine Start
-def get_obd_data():
+def obd_data():
     serial_address = "/dev/ttyUSB0"
     ser = serial.Serial(serial_address)
     ser.baudrate = 115200 #ELM327 Baud rate
     ser.timeout = 1
     
     #we need to test if it works without the next 3 lines of code
-    s = 'ATe0' #init OBD
-    ser.write(s + '\r')
-    time.sleep(.4)
+    #s = 'ATe0' #init OBD
+    #ser.write(s + '\r')
+    #time.sleep(.4)
     
     #fetch data
     ser.flushInput()
@@ -92,43 +92,43 @@ def error_codes(serial_address):
 
 def interpret_error_code(error_code):
     if error_code[0] == "0":
-        error_code = "P0" + raw[1:4]
+        error_code = "P0" + error_code[1:4]
     elif error_code[0] == "1":
-        error_code = "P1" + raw[1:4]
+        error_code = "P1" + error_code[1:4]
     elif error_code[0] == "2":
-        error_code = "P2" + raw[1:4]
+        error_code = "P2" + error_code[1:4]
     elif error_code[0] == "3":
-        error_code = "P3" + raw[1:4]
+        error_code = "P3" + error_code[1:4]
     elif error_code[0] == "4":
-        error_code = "C0" + raw[1:4]
+        error_code = "C0" + error_code[1:4]
     elif error_code[0] == "5":
-        error_code = "C1" + raw[1:4]
+        error_code = "C1" + error_code[1:4]
     elif error_code[0] == "6":
-        error_code = "C2" + raw[1:4]
+        error_code = "C2" + error_code[1:4]
     elif error_code[0] == "7":
-        error_code = "C3" + raw[1:4]
+        error_code = "C3" + error_code[1:4]
     elif error_code[0] == "8":
-        error_code = "B0" + raw[1:4]
+        error_code = "B0" + error_code[1:4]
     elif error_code[0] == "9":
-        error_code = "B1" + raw[1:4]
+        error_code = "B1" + error_code[1:4]
     elif error_code[0] == "A":
-        error_code = "B2" + raw[1:4]
+        error_code = "B2" + error_code[1:4]
     elif error_code[0] == "B":
-        error_code = "B3" + raw[1:4]
+        error_code = "B3" + error_code[1:4]
     elif error_code[0] == "C":
-        error_code = "U0" + raw[1:4]
+        error_code = "U0" + error_code[1:4]
     elif error_code[0] == "D":
-        error_code = "U1" + raw[1:4]
+        error_code = "U1" + error_code[1:4]
     elif error_code[0] == "E":
-        error_code = "U2" + raw[1:4]
+        error_code = "U2" + error_code[1:4]
     elif error_code[0] == "F":
-        error_code = "U3" + raw[1:4]
+        error_code = "U3" + error_code[1:4]
     return error_code
 
 #MAIN
 
 #error codes
-error_code_1, error_code_2, error_code_3 = error_codes()
+error_code_1, error_code_2, error_code_3 = error_codes("/dev/ttyUSB0")
 error_code_1 = interpret_error_code(error_code_1)
 error_code_2 = interpret_error_code(error_code_2)
 error_code_3 = interpret_error_code(error_code_3)
@@ -136,8 +136,9 @@ print("error messages")
 print(error_code_1, error_code_2, error_code_3)
 
 #OBD info
+flag = 0
 while flag < 100:
-    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data(0)
+    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data()
     print("data")
     print("rpm: ", rpm)
     print("mph: ", mph)
@@ -148,4 +149,4 @@ while flag < 100:
     h, m = divmod(m, 60)
     print "%d:%02d:%02d" % (h, m, s)
     flag+=1
-    ser.close #close serial
+ser.close #close serial
