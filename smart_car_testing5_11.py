@@ -30,8 +30,8 @@ from time import sleep
 #this file is needed for the rasp OS
 Builder.load_file('SmartCarCapstone5_6.kv')
 
-#this line is importing OBD variables from "dummydataforGUI" python script
-import dummydataforGUI
+#this line is importing OBD variables from "smartcarOBD" python script
+import smartCarOBD
 
 camera = PiCamera()
 camera.rotation = 180
@@ -65,12 +65,12 @@ class HomeScreen(PageLayout):
     def set_time(self,dt):
         self.your_time = time.strftime("%m/%d/%Y \n     %H:%M")
         #setting the self to the OBD variable
-        self.a=dummydataforGUI.a
-        self.b=dummydataforGUI.b
-        self.c=dummydataforGUI.c
-        self.d=dummydataforGUI.d
-        self.e=dummydataforGUI.e
-        self.f=dummydataforGUI.f
+        self.a=smartcarOBD.a
+        self.b=smartcarOBD.b
+        self.c=smartcarOBD.c
+        self.d=smartcarOBD.d
+        self.e=smartcarOBD.e
+        self.f=smartcarOBD.f
 
 
     def on_prev(self, obj):
