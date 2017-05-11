@@ -25,7 +25,8 @@ import time
 Builder.load_file('SmartCarCapstone.kv')
 
 #this line is importing OBD variables from "dummydataforGUI" python script
-import dummydataforGUI
+#import dummydataforGUI
+import smartcarOBD
 
 class HomeScreen(PageLayout):
     your_time = StringProperty()
@@ -47,12 +48,14 @@ class HomeScreen(PageLayout):
     def set_time(self,dt):
         self.your_time = time.strftime("%m/%d/%Y \n     %H:%M")
         #setting the self to the OBD variable
-        self.a=dummydataforGUI.a
-        self.b=dummydataforGUI.b
-        self.c=dummydataforGUI.c
-        self.d=dummydataforGUI.d
-        self.e=dummydataforGUI.e
-        self.f=dummydataforGUI.f
+        #self.a=dummydataforGUI.a
+        #self.b=dummydataforGUI.b
+        #self.c=dummydataforGUI.c
+        #self.d=dummydataforGUI.d
+        #self.e=dummydataforGUI.e
+        #self.f=dummydataforGUI.f
+        
+        self.a, self.b, self.c, self.d, self.e, self.f = smartcarOBD.get_obd_data()
 
 
 class SmartCarCapstone(App):
