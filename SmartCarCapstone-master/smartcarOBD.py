@@ -137,10 +137,10 @@ def interpret_error_code(error_code):
 ##MAIN
 #
 ##error codes
-#error_code_1, error_code_2, error_code_3 = error_codes("/dev/ttyUSB0")
-#error_code_1 = interpret_error_code(error_code_1)
-#error_code_2 = interpret_error_code(error_code_2)
-#error_code_3 = interpret_error_code(error_code_3)
+error_code_1, error_code_2, error_code_3 = error_codes("/dev/ttyUSB0")
+err1 = interpret_error_code(error_code_1)
+err2 = interpret_error_code(error_code_2)
+err3 = interpret_error_code(error_code_3)
 #print("error codes")
 #print(error_code_1, error_code_2, error_code_3)
 
