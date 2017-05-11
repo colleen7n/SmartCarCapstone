@@ -24,19 +24,18 @@ def obd_data():
     ser.baudrate = 115200 #ELM327 Baud rate
     ser.timeout = 1
     
-    #we need to test if it works without the next 3 lines of code
-    #s = 'ATe0' #init OBD
-    #ser.write(s + '\r')
-    #time.sleep(.4)
+    s = 'ATe0' #init OBD
+    ser.write(s + '\r')
+    time.sleep(.3)
     
     #fetch data
     ser.flushInput()
     s = '01 0C 0D 2F 05 04 1F' #requests data
     ser.write(s + '\r')
-    time.sleep(.4) #gives device time to communicate with CAN bus
+    time.sleep(.3) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
-    print("raw data: ")
-    print(raw_data)
+    #print("raw data: ")
+    #print(raw_data)
     #interpret data
     raw = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
     
@@ -58,6 +57,7 @@ def obd_data():
     engine_load = "%.2f" % engine_load
     
     run_time = raw[32:36]
+    #print(run_time)
     run_time = ((256*int(run_time[0:2], 16))+int(run_time[2:4], 16))
     
     return rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time
@@ -77,8 +77,8 @@ def error_codes(serial_address):
     ser.write(s + '\r')
     time.sleep(.4) #gives device time to communicate with CAN bus
     raw_data = ser.read(1024)
-    print("raw data: ")
-    print(raw_data)
+    #print("raw data: ")
+    #print(raw_data)
     #interpret data
     hex_data = re.sub(r'\W+','',raw_data) #eliminates spaces and non hex characters
     raw = hex_data + "0000000000000000000000" #0's buffer for lexing
@@ -123,6 +123,9 @@ def interpret_error_code(error_code):
         error_code = "U2" + error_code[1:4]
     elif error_code[0] == "F":
         error_code = "U3" + error_code[1:4]
+
+    if error_code == "P0000":
+        error_code = "     "
     return error_code
 
 #MAIN
@@ -132,7 +135,7 @@ error_code_1, error_code_2, error_code_3 = error_codes("/dev/ttyUSB0")
 error_code_1 = interpret_error_code(error_code_1)
 error_code_2 = interpret_error_code(error_code_2)
 error_code_3 = interpret_error_code(error_code_3)
-print("error messages")
+print("error codes")
 print(error_code_1, error_code_2, error_code_3)
 
 #OBD info
@@ -145,6 +148,7 @@ while flag < 100:
     print("fuel level: ", fuel_level)
     print("engine coolant temp: ", engine_coolant_temp)
     print("engine load: ", engine_load)
+    #print("run time raw", run_time)
     m, s = divmod(run_time, 60)
     h, m = divmod(m, 60)
     print "%d:%02d:%02d" % (h, m, s)
