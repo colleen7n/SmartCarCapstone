@@ -28,7 +28,7 @@ from time import sleep
 
 #this is calling the kv file for the raspberry pi
 #this file is needed for the rasp OS
-Builder.load_file('SmartCarCapstone_testing5_6.kv')
+Builder.load_file('SmartCarCapstone5_6.kv')
 
 #this line is importing OBD variables from "dummydataforGUI" python script
 import dummydataforGUI
