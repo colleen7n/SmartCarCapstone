@@ -54,7 +54,7 @@ class HomeScreen(PageLayout):
         self.e=dummydataforGUI.e
         self.f=dummydataforGUI.f
 
-        
+
 class SmartCarCapstone(App):
     def build(self):
         return HomeScreen()
