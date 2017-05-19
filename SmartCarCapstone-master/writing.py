@@ -7,6 +7,7 @@
 # This script is used to interface a USB ELM327 OBDII with the Raspberry Pi
 
 
+
 #MPG =VSS * 7.718/MAF
 
 import serial

@@ -145,10 +145,10 @@ err3 = interpret_error_code(error_code_3)
 #print(error_code_1, error_code_2, error_code_3)
 
 ##OBD info
-#flag = 0
-#while flag < 100:
+flag = 0
+while flag < 100:
 #    rpm, mph, fuel_level, engine_coolant_temp, engine_load, run_time = obd_data()
-a,b,c,d,e,f = obd_data()
+    a,b,c,d,e,f = obd_data()
 #    print("data")
 #    print("rpm: ", rpm)
 #    print("mph: ", mph)
@@ -159,5 +159,5 @@ a,b,c,d,e,f = obd_data()
 #    m, s = divmod(run_time, 60)
 #    h, m = divmod(m, 60)
 #    print "%d:%02d:%02d" % (h, m, s)
-#    flag+=1
+    flag+=1
 #ser.close #close serial
