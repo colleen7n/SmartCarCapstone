@@ -55,7 +55,7 @@ class HomeScreen(PageLayout):
         #self.e=dummydataforGUI.e
         #self.f=dummydataforGUI.f
         
-        self.a, self.b, self.c, self.d, self.e, self.f = smartcarOBD.get_obd_data()
+        a, b, c, d, e, f = smartcarOBD
 
 
 class SmartCarCapstone(App):

@@ -36,9 +36,9 @@ def obd_data():
 
 a,b,c,d,e,f = obd_data()
 
-print("rpm",a)
-print("mph",b)
-print("fuel level",c)
-print("engine coolant temp",d)
-print("engine load",e)
-print("time since engine start",f)
+#print("rpm",a)
+#print("mph",b)
+#print("fuel level",c)
+#print("engine coolant temp",d)
+#print("engine load",e)
+#print("time since engine start",f)
