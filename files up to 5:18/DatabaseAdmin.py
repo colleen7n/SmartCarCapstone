@@ -5,15 +5,11 @@ import requests
 # password is SmartCar90210
 '''
 Last updated April 29, 4:06 PM
+Requires Python 3.4 or greater due to Pyrebase library
 '''
 
 
 def generate_id(database):
-    '''
-
-    :param database:
-    :return:
-    '''
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     new_id = ""
     passed = 0
@@ -104,16 +100,6 @@ def dl_image(store_name, image_url):
 
 
 def add_location(database, person, storages, latitude, longitude, businesstype, imageurl):
-    '''
-
-    :param database:
-    :param person:
-    :param latitude:
-    :param longitude:
-    :param businesstype:
-    :param imageurl:
-    :return:
-    '''
     new_store = generate_id(database)
     print("Your new location ID is", new_store)
     d1 = {new_store: latitude}
@@ -131,12 +117,6 @@ def add_location(database, person, storages, latitude, longitude, businesstype, 
 
 
 def option1(database, person, storages):
-    '''
-
-    :param database:
-    :param person:
-    :return:
-    '''
     print("Great! Give me the following values and I can right on that:")
     lati = get_tude("latitude")
     logi = get_tude("longitude")
