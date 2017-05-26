@@ -37,9 +37,18 @@ serial_address = "/dev/ttyUSB0"
 ser = serial.Serial(serial_address)
 ser.baudrate = 115200 #ELM327 Baud rate
 ser.timeout = 1
+
 s = 'ATe0' #init OBD
-ser.write('ATe0' + '\r')
-time.sleep(.3)
+ser.write(s + '\r')
+time.sleep(.5)
+
+s = 'ATAL' # allow long messages
+ser.write(s +'\r')
+time.sleep(.5)
+
+s = 'ATSPB' # set CAN to 125 kbaud
+ser.write(s + '\r')
+time.sleep(.5)
 
 i = 0
 while i < 100:
