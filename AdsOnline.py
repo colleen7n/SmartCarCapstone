@@ -1,15 +1,12 @@
 '''
-Alex Mendez
+Alex Mendez, Colleen Nhim, Matthew Konyndyk, Jasjit Singh
 Smart Car Device Capstone Project
 Portland State University
-March 11, 2017 to May 31, 2017
-
+March 11, 2017 to June 16, 2017
 Requires Python 3.4 or later due to pyrebase library
 Pyrebase library found at https://github.com/thisbejim/Pyrebase
 Requires Pillow library for displaying images
 Pillow library found at https://python-pillow.org/
-LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
-LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
 LATITUDE FIRST, LONGITUDE SECOND. ALWAYS.
 THIS RULE IS CRITICAL. DO NOT FORGET IT.
 '''
@@ -29,7 +26,7 @@ def bearing_calc(gpslat, gpslon, newlat, newlon):  # calculate the bearing (dire
     y = sin(lam2-lam1) * cos(phi2)
     x = cos(phi1) * sin(phi2) - sin(phi1)*cos(phi2)*cos(lam2-lam1)
     bearing = degrees(atan2(y, x)) + 180.0
-    print(bearing)
+    # print(bearing)
     if (bearing >= 0.0) & (bearing <= 22.5):
         return "South"
     elif (bearing >= 22.5) & (bearing <= 67.5):
@@ -173,7 +170,7 @@ def option2(lat1, lon1, location_list):  # find the nearest location based on gp
     if ch != "none":
         print("There is a location near you!")
         direction = bearing_calc(lat1, lon1, chLa, chLo)
-        print("The location is", format(chD, '.3f'), 'miles', direction, 'from here. Here is its offer.')
+        print("The location is", format(chD, '2.3f'), 'miles', direction, 'from here. Here is its offer.')
         champImage = offlineImages[ch]
         champImageName = champImage[4:]
         Image.open(champImageName).show()
@@ -230,8 +227,8 @@ print("smart car device ready for offline use for any location within 50 miles."
 # Time how long it took for the process to finish setting up
 end_time = time.process_time()
 et = time.time()
-print(end_time - start_time)
-print(et-st)
+print('It has taken', format(et-st, '.3f'),'seconds to update the database')
+# print(et-st)
 
 # now we make our command-line gui
 done = 0
